@@ -1,19 +1,30 @@
 let isWindowFocus = false;
 let isMouseEnter = false;
 let isStartRecord = false;
-
+let throttleHandleMousemove = throttle(handleMousemove,15)
+let cursorElement = document.getElementsByClassName('active_cursor')[0];
+let bodyElement = document.getElementsByTagName('body')[0];
+let cursorRecordPositions = [];
 
 // 鼠标事件
-let moveenter_flag = false;
 window.addEventListener('blur',()=>{
-    document.removeEventListener('mouseleave',handleMouseleave);
-    document.removeEventListener('mouseenter',handleMouseenter);
+    if(isStartRecord){
+        const setIntervalId = setInterval(()=>{
+            if(isMouseEnter){
+                clearInterval(setIntervalId)
+                return;
+            }
+            cursorRecordPositions.push(cursorRecordPositions[cursorRecordPositions.length - 1])
+        },15)
+    }
+    bodyElement.removeEventListener('mouseleave',handleMouseleave);
+    bodyElement.removeEventListener('mouseenter',handleMouseenter);
 })
 
 window.addEventListener('focus',()=>{
     isMouseEnter = true;
-    document.addEventListener('mouseenter',handleMouseenter)
-    document.addEventListener('mouseleave',handleMouseleave)
+    bodyElement.addEventListener('mouseenter',handleMouseenter)
+    bodyElement.addEventListener('mouseleave',handleMouseleave)
 })
 
 function handleMouseenter(event){
@@ -27,18 +38,17 @@ function handleMouseleave(event){
 }
 
 // 录制
-let throttleHandleMousemove = throttle(handleMousemove,15)
-let cursorElement = document.getElementsByClassName('active_cursor')[0];
-let cursorRecordPositions = [];
+
 function handleBtnRecordStartOnclick(){ // 点击按钮为什么不回触发focus
     isStartRecord = true;
     cursorRecordPositions = []
-    document.addEventListener('mousemove',throttleHandleMousemove)
+    bodyElement.addEventListener('mousemove',throttleHandleMousemove)
 }
 function handleBtnRecordEndOnclick(){
     isStartRecord = false;
     console.log('录制结束')
-    document.removeEventListener('mousemove',throttleHandleMousemove)
+    console.log(cursorRecordPositions)
+    bodyElement.removeEventListener('mousemove',throttleHandleMousemove)
 }
 function handleBtnPlayCursorOnclick(){
     console.log('播放鼠标轨迹')
@@ -82,3 +92,8 @@ function throttle(fn,delay){
         }         
     }
 }
+
+// 在 index.js 末尾暴露这些函数
+window.handleBtnRecordStartOnclick = handleBtnRecordStartOnclick;
+window.handleBtnRecordEndOnclick = handleBtnRecordEndOnclick;
+window.handleBtnPlayCursorOnclick = handleBtnPlayCursorOnclick;
