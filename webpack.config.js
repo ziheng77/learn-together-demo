@@ -3,8 +3,7 @@ const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const { dir, assert } = require('console');
-const { cache } = require('webpack');
+const { webpack } = require('webpack');
 const getMultiEntry = (param) => {
     const entry = {};
     const HtmlWebpackPlugins = [];
@@ -71,12 +70,17 @@ module.exports = {
             },
             // 处理图片
             {
-                test: /\.(png|svg|jpe?g|gif|ttf)$/i,
+                test: /\.(png|svg|jpe?g|gif)$/i,
                 type: 'asset/resource',
                 generator: {
                     filename: 'assets/images/[name].[contenthash][ext][query]',
                 },
-            }
+            },
+            // 处理字体
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                type: 'asset/resource',
+            } 
         ]
     },
     plugins: [
@@ -90,6 +94,7 @@ module.exports = {
         })
     ],
     optimization:{
+        moduleIds: 'named',
         splitChunks: {
             chunks:'all',
             minSize: 20000,

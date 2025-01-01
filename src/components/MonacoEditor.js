@@ -28,8 +28,9 @@ class MonacoEditor extends HTMLElement {
         }
         // 创建实例
         MonacoEditor.instance = this;
+        console.log(MonacoEditor.instance)
         // 创建影子节点
-        const shadow = this.attachShadow({mode:'open'});
+        // const shadow = this.attachShadow({mode:'open'});
         // 创建编辑器实例
         this.editor = null;
         // 创建编辑器容器
@@ -43,8 +44,8 @@ class MonacoEditor extends HTMLElement {
             theme:'vs-dark',
             automaticLayout:true,
         })
-        shadow.appendChild(container);
-        console.log(shadow.getElementById('editor'))
+        // shadow.appendChild(container);
+        this.appendChild(container);
     }
 
     // 对外获取实例方法

@@ -15,3 +15,7 @@
     width: 100vw;
     height: 100vh;
 }
+.monaco-editor::part{
+    width: 100vw;
+    height: 100vh;
+}

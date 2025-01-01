@@ -1,5 +1,6 @@
 import {throttle} from '@js/utils.js'
 import '@components/MonacoEditor.js'
+
 let isWindowFocus = false;
 let isMouseEnter = false;
 let isStartRecord = false;
