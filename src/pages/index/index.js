@@ -1,3 +1,5 @@
+import {throttle} from '@js/utils.js'
+import '@components/MonacoEditor.js'
 let isWindowFocus = false;
 let isMouseEnter = false;
 let isStartRecord = false;
@@ -6,6 +8,8 @@ let cursorElement = document.getElementsByClassName('active_cursor')[0];
 let bodyElement = document.getElementsByTagName('body')[0];
 let cursorRecordPositions = [];
 
+bodyElement.addEventListener('mouseenter',handleMouseenter)
+bodyElement.addEventListener('mouseleave',handleMouseleave)
 // 鼠标事件
 window.addEventListener('blur',()=>{
     if(isStartRecord){
@@ -39,7 +43,7 @@ function handleMouseleave(event){
 
 // 录制
 
-function handleBtnRecordStartOnclick(){ // 点击按钮为什么不回触发focus
+function handleBtnRecordStartOnclick(){ // 点击按钮为什么不会触发focus
     isStartRecord = true;
     cursorRecordPositions = []
     bodyElement.addEventListener('mousemove',throttleHandleMousemove)
@@ -54,12 +58,17 @@ function handleBtnPlayCursorOnclick(){
     console.log('播放鼠标轨迹')
     let index = 0;
     const intervalId = setInterval(()=>{
-        if(index == cursorRecordPositions.length - 1){
+        if(index == cursorRecordPositions.length - 1 || cursorRecordPositions.length == 0){
             clearInterval(intervalId)
             return;
         }
-        index++;
-        cursorElement.style.transform = `translate(${cursorRecordPositions[index].x}px,${cursorRecordPositions[index].y}px)`
+        const position = cursorRecordPositions[index];
+        if ('x' in position && 'y' in position) {
+            cursorElement.style.transform = `translate(${position.x}px, ${position.y}px)`;
+            index++;
+        } else {
+            console.error('鼠标轨迹数据错误');
+        }
     },15);
 }
 function handleMousemove(event){
@@ -71,29 +80,9 @@ function handleMousemove(event){
         })
     }
 }
-// 防抖截流
-function debunce(fn,delay){
-    let timer = null;
-    return function(){
-        if(timer){
-            clearTimeout(timer)
-        }
-        timer = setTimeout(()=>{
-            fn.apply(this,arguments)
-        },delay)
-    }
-}
-function throttle(fn,delay){
-    let prevTime = Date.now()
-    return function(){
-        if(Date.now() - prevTime >= delay){
-            fn.apply(this,arguments)
-            prevTime = Date.now()  
-        }         
-    }
-}
 
-// 在 index.js 末尾暴露这些函数
+
+// 暴露函数
 window.handleBtnRecordStartOnclick = handleBtnRecordStartOnclick;
 window.handleBtnRecordEndOnclick = handleBtnRecordEndOnclick;
 window.handleBtnPlayCursorOnclick = handleBtnPlayCursorOnclick;

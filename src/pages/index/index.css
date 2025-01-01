@@ -7,3 +7,11 @@
         height: 20px;
     }
 }
+.monaco_editor{
+    width: 100vw;
+    height: 100vh;
+}
+#editor{
+    width: 100vw;
+    height: 100vh;
+}

@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "monaco-editor": "^0.52.2"
+    "monaco-editor": "^0.52.2",
+    "monaco-editor-webpack-plugin": "^7.1.0"
   },
   "devDependencies": {
     "css-loader": "^7.1.2",

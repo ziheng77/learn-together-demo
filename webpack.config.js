@@ -2,7 +2,9 @@ const path = require('path');
 const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const { dir, assert } = require('console');
+const { cache } = require('webpack');
 const getMultiEntry = (param) => {
     const entry = {};
     const HtmlWebpackPlugins = [];
@@ -26,8 +28,8 @@ const getMultiEntry = (param) => {
 
 const {entry, HtmlWebpackPlugins} = getMultiEntry({
     files:[
-        "/src/assets/js/utils.js",
-        "/src/assets/css/common.css"
+        // 需要打包在一起的文件
+        './src/assets/css/common.css',
     ]
 });
 
@@ -46,12 +48,11 @@ module.exports = {
         open:false
     },
     output: {
-        filename: '[name]/index.js',
+        filename: 'script/[contenthash]_bundle.js',
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/',
         clean: true,
-        assetModuleFilename: 'assets/[name][ext]',
-        chunkFilename: '[name]/index.js',
+        assetModuleFilename: 'assets/[contenthash][ext]',
     },
     module: {
         rules: [
@@ -70,7 +71,7 @@ module.exports = {
             },
             // 处理图片
             {
-                test: /\.(png|svg|jpe?g|gif)$/i,
+                test: /\.(png|svg|jpe?g|gif|ttf)$/i,
                 type: 'asset/resource',
                 generator: {
                     filename: 'assets/images/[name].[contenthash][ext][query]',
@@ -80,14 +81,40 @@ module.exports = {
     },
     plugins: [
         ...HtmlWebpackPlugins,
-        new MiniCssExtractPlugin({filename: '[name]/index.css'}),
+        new MiniCssExtractPlugin({filename: 'styles/[contenthash].css'}),
+        new MonacoWebpackPlugin({
+            languages: ['javascript','typescript','css','html','json'],
+            features: ['coreCommands','find','suggest'],
+            publicPath: '/',
+            filename: 'monaco-editor/[name].worker.js',
+        })
     ],
+    optimization:{
+        splitChunks: {
+            chunks:'all',
+            minSize: 20000,
+            maxSize: 100000,
+            minChunks: 1,
+            maxAsyncRequests: 20,
+            maxInitialRequests: 20,
+            automaticNameDelimiter: '~',
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                }
+            }
+        }
+    },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
+            '@components': path.resolve(__dirname, 'src/components'),
             '@img': path.resolve(__dirname, 'src/assets/images'),
             '@css': path.resolve(__dirname, 'src/assets/css'),
             '@js': path.resolve(__dirname, 'src/assets/js'),
+            '@modules': path.resolve(__dirname, 'node_modules'),
         },
         extensions: ['.js', '.json'],
     },
